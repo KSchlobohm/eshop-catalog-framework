@@ -1,4 +1,6 @@
+using System;
 using System.Data.Entity;
+using eShopCatalogApi.App_Start;
 using eShopCatalogApi.Models;
 using eShopCatalogApi.Security;
 using Microsoft.AspNet.Identity;
@@ -16,11 +18,18 @@ namespace eShopCatalogApi.DAL
 
         protected override void Seed(CatalogContext context)
         {
-            context.Users.Add(new ApiUser
+            using (var manager = IdentityConfig.CreateUserManager(context))
             {
-                UserName = settings.SeedUserName,
-                PasswordHash = new PasswordHasher().HashPassword(settings.SeedPassword)
-            });
+                var result = manager.Create(new ApiUser
+                {
+                    UserName = settings.SeedUserName
+                }, settings.SeedPassword);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        "Could not create the seed user: " + string.Join("; ", result.Errors));
+                }
+            }
             context.Products.AddRange(new[]
             {
                 new Product { Sku = "MUG-001", Name = "eShop Coffee Mug", Price = 12.50m },

@@ -3,8 +3,8 @@
 A lean product catalog API sample built with ASP.NET Web API 2 on
 .NET Framework 4.8, Entity Framework 6, and SQL Server LocalDB.
 
-The sample provides product CRUD, JWT bearer authentication, and
-Swagger UI. It represents a classic application for evaluating
+The sample provides product CRUD, ASP.NET Identity user management,
+JWT bearer authentication, and Swagger UI. It represents a classic application for evaluating
 .NET migration tooling.
 
 ## Prerequisites
@@ -17,7 +17,8 @@ Swagger UI. It represents a classic application for evaluating
 1. Open `eShopCatalogApi.sln` and restore NuGet packages.
 2. In `eShopCatalogApi`, copy `AppSettings.local.config.example` to
    `AppSettings.local.config`. Set `SeedPassword` to a local sample password
-   and `JwtSigningKey` to a Base64-encoded random key of at least 32 bytes.
+   of at least six characters and `JwtSigningKey` to a Base64-encoded random
+   key of at least 32 bytes.
    The local configuration file is ignored by Git. Generate a key with PowerShell:
 
    ```powershell
@@ -30,13 +31,19 @@ Swagger UI. It represents a classic application for evaluating
 
 3. Set `eShopCatalogApi` as the startup project and press **F5**.
    EF6 creates the `eShopCatalogApi` LocalDB database and seeds three products
-   and one user with a hashed password on first startup. Subsequent startups
-   preserve the data; seed credentials apply only when the database is created.
+   and one user through ASP.NET Identity's `UserManager` on first startup.
+   Identity stores the hashed password in its standard EF-backed user store.
+   Subsequent startups preserve the data; seed credentials apply only when
+   the database is created.
    Missing authentication settings stop startup with a configuration error.
 4. Open `http://localhost:61461/swagger`. Call `POST /api/auth/login` with
    `{"UserName":"merchant","Password":"<your local sample password>"}`.
    In Swagger UI's API-key field, enter the word `Bearer`, a space, and the
    returned `access_token` to call the protected operations.
+
+The initializer does not migrate or drop existing databases. If a database
+has a different schema, choose a fresh database name in the `CatalogContext`
+connection string in `Web.config`.
 
 ## API
 

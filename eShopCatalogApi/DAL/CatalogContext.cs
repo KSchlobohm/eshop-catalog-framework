@@ -1,16 +1,16 @@
 using System.Data.Entity;
 using eShopCatalogApi.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace eShopCatalogApi.DAL
 {
-    public class CatalogContext : DbContext
+    public class CatalogContext : IdentityDbContext<ApiUser>
     {
         public CatalogContext() : base("name=CatalogContext")
         {
         }
 
         public DbSet<Product> Products { get; set; }
-        public DbSet<ApiUser> Users { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

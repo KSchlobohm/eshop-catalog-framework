@@ -1,9 +1,9 @@
 using System;
-using System.Data.Entity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
+using eShopCatalogApi.App_Start;
 using eShopCatalogApi.DAL;
 using eShopCatalogApi.Models;
 using eShopCatalogApi.Security;
@@ -16,6 +16,12 @@ namespace eShopCatalogApi.Controllers
     public class AuthController : ApiController
     {
         private readonly CatalogContext db = new CatalogContext();
+        private readonly UserManager<ApiUser> userManager;
+
+        public AuthController()
+        {
+            userManager = IdentityConfig.CreateUserManager(db);
+        }
 
         [AllowAnonymous, HttpPost, Route("login")]
         public async Task<IHttpActionResult> Login(LoginRequest request)
@@ -25,10 +31,8 @@ namespace eShopCatalogApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await db.Users.SingleOrDefaultAsync(u => u.UserName == request.UserName);
-            var hasher = new PasswordHasher();
-            if (user == null || hasher.VerifyHashedPassword(user.PasswordHash, request.Password)
-                == PasswordVerificationResult.Failed)
+            var user = await userManager.FindAsync(request.UserName, request.Password);
+            if (user == null)
             {
                 return Unauthorized();
             }
@@ -40,7 +44,7 @@ namespace eShopCatalogApi.Controllers
                 audience: settings.Audience,
                 claims: new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(ClaimTypes.Name, user.UserName)
                 },
                 notBefore: now,
@@ -58,7 +62,10 @@ namespace eShopCatalogApi.Controllers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
+                userManager.Dispose();
                 db.Dispose();
+            }
             base.Dispose(disposing);
         }
     }
