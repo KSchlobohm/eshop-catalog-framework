@@ -6,7 +6,7 @@ namespace eShopCatalogApi.DAL
 {
     public class CatalogContext : IdentityDbContext<ApiUser>
     {
-        public CatalogContext() : base("name=CatalogContext")
+        public CatalogContext() : base("name=CatalogContext", throwIfV1Schema: false)
         {
         }
 
