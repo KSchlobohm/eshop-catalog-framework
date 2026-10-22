@@ -35,15 +35,18 @@ JWT bearer authentication, and Swagger UI. It represents a classic application f
    Identity stores the hashed password in its standard EF-backed user store.
    Subsequent startups preserve the data; seed credentials apply only when
    the database is created.
-   Missing authentication settings stop startup with a configuration error.
+   Missing authentication settings or an invalid seed password stop startup
+   with a configuration error before database initialization.
 4. Open `http://localhost:61461/swagger`. Call `POST /api/auth/login` with
    `{"UserName":"merchant","Password":"<your local sample password>"}`.
    In Swagger UI's API-key field, enter the word `Bearer`, a space, and the
    returned `access_token` to call the protected operations.
 
 The initializer does not migrate or drop existing databases. If a database
-has a different schema, choose a fresh database name in the `CatalogContext`
-connection string in `Web.config`.
+has a different schema or was left without a user by an earlier failed seed,
+choose a fresh database name in the `CatalogContext` connection string in
+`Web.config` after correcting the settings. Restarting does not rerun seeding
+for an existing database.
 
 ## API
 
