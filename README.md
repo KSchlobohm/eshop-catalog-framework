@@ -64,7 +64,8 @@ Products have `Id`, `Sku`, `Name`, and `Price` fields.
 All product operations require a JWT. Create returns `201` with the product
 and its location; update and delete return `204`. Invalid input returns `400`,
 missing products return `404`, and missing or invalid tokens return `401`.
-Prices must be nonnegative. Swagger documentation is public.
+Prices must be nonnegative, fit the database's `decimal(18,2)` column,
+and not require rounding to two decimal places. Swagger documentation is public.
 
 This is a local development sample, not a production deployment template.
 It has no frontend, external identity service, registration, refresh tokens,
